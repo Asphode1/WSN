@@ -1,0 +1,12 @@
+{
+  "name": "wsn",
+  "version": "1.0.0",
+  "description": "k-barrier coverage in wireless sensor network",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mai Kien",
+  "license": "ISC",
+  "type": "module"
+}
