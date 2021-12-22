@@ -41,7 +41,7 @@ function pointToLine(p, u, v) {
 	t = Math.max(0, Math.min(1, t))
 	var d = dist(p, { x: u.x + t * (v.x - u.x), y: u.y + t * (v.y - u.y) })
 	if (checkObtuse(p, [u, v])) return Math.min(dist(p, u), dist(p, v))
-	else return d
+	return d
 }
 /* 
   set of functions to check if 2 line segments are intersect
@@ -60,7 +60,7 @@ function orientation(p, q, r) {
 }
 
 /**
- * Function to check if 2 line segments are intersect in plane
+ * Function to check if 2 line segments are intersect in an Oxy plane
  * @param {Object} p1 - point 1 of line 1
  * @param {Object} q1 - point 2 of line 2
  * @param {Object} p2 - point 1 of line 2
@@ -78,18 +78,19 @@ function checkIntersect(p1, q1, p2, q2) {
 	if (o2 == 0 && onSegment(p1, q2, q1)) return true
 	if (o3 == 0 && onSegment(p2, p1, q2)) return true
 	if (o4 == 0 && onSegment(p2, q1, q2)) return true
+	return false
 }
 // end set
 
 function checklineArcIntersect(p1, l1, l2) {
-	// find a,b | y = ax+b
+	// find a,c | ax - y + c = 0
 	var a = (l1.y - l2.y) / (l1.x - l2.x)
 	var c = l1.y - a * l1.x
 	var b = -1
 	var t1 = Math.atan(b / a) + Math.acos(-(a * p1.pos.x + b * p1.pos.y + c) / R / Math.sqrt(a * a + b * b))
 	var t2 = Math.atan(b / a) - Math.acos(-(a * p1.pos.x + b * p1.pos.y + c) / R / Math.sqrt(a * a + b * b))
 	if ((p1.beta <= t1 && t1 <= p1.beta + 2 * A) || (p1.beta <= t2 && t2 <= p1.beta + 2 * A)) return true
-	else return false
+	return false
 }
 
 function checkArcIntersect(p1, p2) {
@@ -98,6 +99,7 @@ function checkArcIntersect(p1, p2) {
 		var [a1, a2] = [getPoint(p1)[1], getPoint(p1)[2]]
 		if (checkIntersect(a1, a2, p1.pos, p2.pos)) return true
 	}
+	return false
 }
 
 // function to check if 2 sensors are overlap
@@ -110,7 +112,7 @@ function checkArcIntersect(p1, p2) {
 function checkSensorOverlap(s1, s2) {
 	var [s1p1, s1p2, s1p3] = getPoint(s1)
 	var [s2p1, s2p2, s2p3] = getPoint(s2)
-	if (
+	return (
 		checkIntersect(s1p1, s1p2, s2p1, s2p2) ||
 		checkIntersect(s1p1, s1p3, s2p1, s2p3) ||
 		checkIntersect(s1p1, s1p2, s2p1, s2p3) ||
@@ -121,7 +123,6 @@ function checkSensorOverlap(s1, s2) {
 		checklineArcIntersect(s2, s1p1, s1p3) ||
 		checkArcIntersect(s1, s2)
 	)
-		return true
 }
 
 // functions to calculate distance of 2 sensor
@@ -138,24 +139,24 @@ function calcY(s1) {
 //calculate weak distance of 2 sensors
 function weakDist(vi, vj) {
 	if (vi === 0) {
-		var vjx = calcX(sensors[vj])[0]
+		var vjx = calcX(sensors[vj - 1])[0]
 		if (vjx <= 0) return 0
 		else return vjx
 	} else if (vj === 0) {
-		var vix = calcX(sensors[vi])[0]
+		var vix = calcX(sensors[vi - 1])[0]
 		if (vix <= 0) return 0
 		else return vix
 	} else if (vi === S + 1) {
-		var vjx = calcX(sensors[vj])[1]
+		var vjx = calcX(sensors[vj - 1])[1]
 		if (vjx >= L) return 0
 		else return L - vjx
 	} else if (vj === S + 1) {
-		var vix = calcX(sensors[vi])[1]
+		var vix = calcX(sensors[vi - 1])[1]
 		if (vix >= L) return 0
 		else return L - vix
 	} else {
-		var [x11, x12] = calcX(sensors[vi])
-		var [x21, x22] = calcX(sensors[vj])
+		var [x11, x12] = calcX(sensors[vi - 1])
+		var [x21, x22] = calcX(sensors[vj - 1])
 		if (x12 < x21) return x21 - x12
 		if (x11 > x22) return x11 - x22
 		if ((x11 < x21 && x21 < x12) || (x11 < x22 && x22 < x12)) return 0
@@ -183,11 +184,11 @@ function arcDist(s1, s2) {
 
 function lineArcDist(s1, s2) {
 	var p1 = getPoint(s1)
+  var min = Infinity
 	var gamma1 = [s1.beta + PI / 2, s1.beta - PI / 2, s1.beta + 2 * A + PI / 2, s1.beta + 2 * A - PI / 2]
 	for (let i of gamma1) {
 		if (s2.beta < i && i < s2.beta + 2 * A) {
 			var [x, y] = [s2.pos.x + R * Math.cos(i), s2.pos.y + R * Math.sin(i)]
-			var min = Infinity
 			if (checkObtuse({ x: x, y: y }, [p1[0], p1[1]])) min = pointToLine({ x: x, y: y }, p1[0], p1[1])
 			if (checkObtuse({ x: x, y: y }, [p1[0], p1[2]]))
 				min = pointToLine({ x: x, y: y }, p1[0], p1[2]) < min ? pointToLine({ x: x, y: y }, p1[0], p1[2]) : min
@@ -214,27 +215,28 @@ function pointArcDist(p, s) {
 	var ps = getPoint(s)
 	if (dist(p, ps[0]) <= R) return Infinity
 	if (s.beta < getAngle(p, ps[0]) && getAngle(p, ps[0]) < s.beta + 2 * A) return dist(p, ps[0]) - R
-  return Infinity
+	return Infinity
 }
 
 // calculate strong distance of 2 sensors
 function strongDist(vi, vj) {
-	if (vi === 0 || vj === 0 || vi === S + 1 || vj === S + 1) return weakDist(vi, vj)
-	else if (checkSensorOverlap(sensors[vi], sensors[vj])) return 0
+  if(vi === vj) return 0
+	else if (vi === 0 || vj === 0 || vi === S + 1 || vj === S + 1) return weakDist(vi, vj)
+	else if (checkSensorOverlap(sensors[vi - 1], sensors[vj - 1])) return 0
 	else {
-		var p1 = getPoint(sensors[vi])
-		var p2 = getPoint(sensors[vj])
+		var p1 = getPoint(sensors[vi - 1])
+		var p2 = getPoint(sensors[vj - 1])
 		var min = Math.min(
 			minPointDist(p1, p2),
-			arcDist(sensors[vi], sensors[vj]),
-			lineArcDist(sensors[vi], sensors[vj]),
-			lineArcDist(sensors[vj], sensors[vi]),
-			pointArcDist(p1[0], sensors[vj]),
-			pointArcDist(p1[1], sensors[vj]),
-			pointArcDist(p1[2], sensors[vj]),
-			pointArcDist(p2[0], sensors[vi]),
-			pointArcDist(p2[1], sensors[vi]),
-			pointArcDist(p2[2], sensors[vi]),
+			arcDist(sensors[vi - 1], sensors[vj - 1]),
+			lineArcDist(sensors[vi - 1], sensors[vj - 1]),
+			lineArcDist(sensors[vj - 1], sensors[vi - 1]),
+			pointArcDist(p1[0], sensors[vj - 1]),
+			pointArcDist(p1[1], sensors[vj - 1]),
+			pointArcDist(p1[2], sensors[vj - 1]),
+			pointArcDist(p2[0], sensors[vi - 1]),
+			pointArcDist(p2[1], sensors[vi - 1]),
+			pointArcDist(p2[2], sensors[vi - 1]),
 			pointToLine(p1[0], p2[0], p2[1]),
 			pointToLine(p1[0], p2[0], p2[2]),
 			pointToLine(p1[1], p2[0], p2[1]),

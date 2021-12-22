@@ -23,4 +23,4 @@ function checkIsNaN(graph){
   }
   return true
 }
-console.log(edge[1]);
+console.log(checkIsNaN(edge));
