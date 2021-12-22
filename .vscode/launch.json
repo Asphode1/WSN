@@ -11,7 +11,7 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}\\test\\getHexCenterPoint.js"
+      "program": "${workspaceFolder}\\src\\createGraph.js"
     }
   ]
 }
