@@ -7,7 +7,17 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="box">
+    <label for="method">Select method: </label>
+    <select name="method" id="method">
+      <option value="1" selected>Greedy</option>
+      <option value="2">GA</option>
+    </select>
+    <input type="button" value="Start" id="init">
+    <p class="error"></p>
+    <p class="output"></p>
+  </div>
   <canvas id="cv"></canvas>
-  <script type="module" src="render.js"></script>
+  <script type="module" src="../render/render.js"></script>
 </body>
 </html>

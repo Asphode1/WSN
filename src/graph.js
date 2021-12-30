@@ -1,17 +1,47 @@
-export default class Graph {
-	constructor(v, edge = [[]], isDirected) {
-		this.isDirected = isDirected
+export default class WBG {
+	/**
+	 * Class for Weighed Barrier Graph
+	 * @param {Number} v - number of vertices
+	 * @param {Array<Array<Number>>} weight - weighed graph
+	 */
+	constructor(v, weight) {
 		this.vertex = v
+		this.weight = weight
+		var edge = new Array(this.vertex)
+		for (let i = 0; i < this.vertex; i++) {
+      edge[i] = new Array(this.vertex).fill(1)
+      edge[i][i] = 0
+		}
 		this.edge = edge
 	}
 	addEdge(v1, v2) {
-		if (this.isDirected) {
-			this.edge[v1][v2] = 1
-		} else {
-			this.edge[v1][v2] = 1
-			this.edge[v2][v1] = 1
-		}
+		this.edge[v1][v2] = 1
+		this.edge[v2][v1] = 1
 	}
+	removeEdge(v1, v2) {
+		this.edge[v1][v2] = 0
+		this.edge[v2][v1] = 0
+	}
+  /**
+   * remove all edges incident to the vertices in a path
+   * @param {Array<Number>} p : the path that needs removing 
+   */
+	removePath(p) {
+    for(let i=0;i<p.length;i++){
+      for(let j=0;j<this.vertex;j++) this.edge[p[i]][j] = 0
+    }
+	}
+  /**
+   * reset graph to the beginning
+   */
+  resetGraph(){
+    var edge = new Array(this.vertex)
+		for (let i = 0; i < this.vertex; i++) {
+      edge[i] = new Array(this.vertex).fill(1)
+      edge[i][i] = 0
+		}
+		this.edge = edge
+  }
 	recurDFS(v, visited = [], path = []) {
 		visited[v] = true
 		path.push(v)
@@ -22,7 +52,7 @@ export default class Graph {
 	}
 	DFS(v) {
 		var path = []
-		let visited = new Array(this.vertex)
+		visited = []
 		for (let i = 0; i < this.vertex; i++) visited[i] = false
 		this.recurDFS(v, visited, path)
 		return path
@@ -47,7 +77,32 @@ export default class Graph {
 		}
 		return path
 	}
-	findPathRecurDFS(s, t, visited = [], before = []) {
+  /**
+   * Check if there is a path from s to t
+   * @param {Number} s - sources Node
+   * @param {Number} t - target Node
+   * @returns bolean
+   */
+	checkPath(s, t) {
+		var visited = Array(this.vertex).fill(false)
+		let queue = []
+		visited[s] = true
+		queue.push(s)
+		while (!queue.length) {
+			n = queue.shift()
+			if (n === t) {
+				return true
+			}
+			for (let i = 0; i < this.vertex; i++) {
+				if (visited[i] === false && this.edge[n][i] === 1) {
+					queue.push(i)
+					visited[i] = true
+				}
+			}
+		}
+		return false
+	}
+	/* findPathRecurDFS(s, t, visited = [], before = []) {
 		visited[t] = true
 		if (s !== t) {
 			for (let i = 0; i < this.vertex; i++) {
@@ -55,10 +110,12 @@ export default class Graph {
 				if (!visited[i] && n !== 0) {
 					before[t] = i
 					var check = this.findPathRecurDFS(s, i, visited, before)
-					if (check) return 1
+					return check
 				}
+				return 0
 			}
-		} else return 1
+		}
+		return 1
 	}
 	findPathDFS(s, t) {
 		var visited = new Array(this.vertex)
@@ -81,7 +138,7 @@ export default class Graph {
 			tmp = before.indexOf(tmp)
 		}
 		return path
-	}
+	} */
 	findLT() {
 		var visited = new Array(this.vertex)
 		for (let i = 0; i < visited.length; i++) visited[i] = false
@@ -92,5 +149,50 @@ export default class Graph {
 			count++
 		}
 		return count
+	}
+  /**
+   * Dijkstra Algorithm to find the shortest path from a node to another node
+   * @param {Number} s - source Node
+   * @param {Number} t - target Node
+   * @returns shortest Path from source Node to target node
+   */
+	dijkstra(s, t) {
+		var dist = Array(this.vertex).fill(Infinity)
+		dist[s] = 0
+		var prev = []
+		var set = Array(this.vertex)
+			.fill()
+			.map((_, i) => i)
+		while (set.length) {
+			var min = Infinity
+			var ind = -1
+			for (let v = 0; v < this.vertex; v++) {
+				if (set.includes(v) && dist[v] <= min) {
+					min = dist[v]
+					ind = v
+				}
+			}
+			var u = ind
+			set = set.filter((i) => i !== u)
+      if(u === t) break
+			for (var i = 0; i < this.vertex; i++) {
+				if (this.edge[u][i] !== 0 && set.includes(i)) {
+					var alt = dist[u] + this.weight[u][i]
+					if (alt < dist[i]) {
+						dist[i] = alt
+						prev[i] = u
+					}
+				}
+			}
+		}
+    var path = []
+    var tmp = t
+    if(prev[tmp] !== undefined || u === s){
+      while(tmp !==undefined){
+        path.unshift(tmp)
+        tmp = prev[tmp]
+      }
+    }
+    return path
 	}
 }

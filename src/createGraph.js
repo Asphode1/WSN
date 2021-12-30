@@ -1,26 +1,21 @@
 import minNum from "./distances.js";
-import Graph from "./graph.js";
+import WBG from "./graph.js";
 import { S } from "./init.js";
 
-function createEdge(){
-  var edge = new Array(S+2)
-  for(let i=0;i<S+2;i++) edge[i] = new Array(S+2)
+/**
+ * Create weight adjacency matrix for WBG
+ * @returns graph
+ */
+function createWeight(){
+  var weight = new Array(S+2)
+  for(let i=0;i<S+2;i++) weight[i] = new Array(S+2)
   for(let i=0;i<S+2;i++){
     for(let j=0;j<S+2;j++){
-      edge[i][j] = minNum(i,j)
+      weight[i][j] = minNum(i,j)
     }
   }
-  return edge
+  return weight
 }
-var edge = createEdge()
-var sensorGraph = new Graph(S+2,edge,false)
+var weight = createWeight()
+var sensorGraph = new WBG(S+2,weight)
 export default sensorGraph
-function checkIsNaN(graph){
-  for(let i of graph){
-    for(let j of i){
-      if(Number.isNaN(j)) return false
-    }
-  }
-  return true
-}
-console.log(checkIsNaN(edge));

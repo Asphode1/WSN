@@ -1,4 +1,4 @@
-import s from './dat.js'
+import s from '../dat/dat.js'
 
 const PI = Math.PI
 // default value for ROI
@@ -18,7 +18,7 @@ class Sensors {
 			x: pos.x,
 			y: pos.y,
 		}
-		this.beta = beta
+		this.beta = beta - A
 		this.isMobile = isMobile
 	}
 }
@@ -29,4 +29,8 @@ for (let i = 0; i < S; i++) {
 for (let i = 0; i < M; i++) {
 	sensors[i + S] = new Sensors(s[i + S].pos, s[i + S].beta, true)
 }
-export { L, H, S, M, PI, A, R, N, largestRange, sensors, Sensors }
+var mobileSensors = []
+for (let i = 0; i < M; i++) {
+	mobileSensors[i] = new Sensors(s[i + S].pos, s[i + S].beta, true)
+}
+export { L, H, S, M, PI, A, R, N, largestRange, sensors, Sensors, mobileSensors }

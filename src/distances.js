@@ -14,11 +14,19 @@ function calcPointCircle(pos, beta, alpha, r) {
 	var y2 = pos.y + r * Math.sin(beta + 2 * alpha)
 	return [x1, y1, x2, y2]
 }
-
+/**
+ * calculate distance of 2 Points in Euclidean plane
+ * @param {Point} u
+ * @param {Point} v
+ * @returns Euclidean distance between u and v
+ */
 function dist(u, v) {
 	return Math.sqrt((u.x - v.x) ** 2 + (u.y - v.y) ** 2)
 }
 
+function getCenter([p1, p2, p3]) {
+	return new Point((p1.x + p2.x + p3.x) / 3, (p1.x + p2.x + p3.x) / 3)
+}
 function getPoint(p) {
 	var p1 = new Point(p.pos.x, p.pos.y)
 	var pos2 = calcPointCircle(p.pos, p.beta, A, R)
@@ -107,7 +115,7 @@ function checkArcIntersect(p1, p2) {
  *
  * @param {Sensors} s1 - sensor 1
  * @param {Sensors} s2 - sensor 2
- * @returns Bolean value, true if 2 sensors are overlap
+ * @returns Bolean value
  */
 function checkSensorOverlap(s1, s2) {
 	var [s1p1, s1p2, s1p3] = getPoint(s1)
@@ -129,6 +137,8 @@ function checkSensorOverlap(s1, s2) {
 
 function calcX(s1) {
 	var [a1, a2, a3] = getPoint(s1)
+	if (s1.beta > PI / 2 && s1.beta < PI) return [a1.x - R, a1.x]
+	if (s1.beta < 2 * PI && s1.beta > (PI * 3) / 2) return [a1.x, a1.x + R]
 	return [Math.min(a1.x, a2.x, a3.x), Math.max(a1.x, a2.x, a3.x)]
 }
 function calcY(s1) {
@@ -136,7 +146,12 @@ function calcY(s1) {
 	return [Math.min(a1.y, a2.y, a3.y), Math.max(a1.y, a2.y, a3.y)]
 }
 
-//calculate weak distance of 2 sensors
+/**
+ * calculate weak distance of 2 sensors
+ * @param {Number} vi - index of 1st Sensor
+ * @param {Number} vj - index of 2nd Sensor
+ * @returns weak distance of 2 sensors
+ */
 function weakDist(vi, vj) {
 	if (vi === 0) {
 		var vjx = calcX(sensors[vj - 1])[0]
@@ -184,7 +199,7 @@ function arcDist(s1, s2) {
 
 function lineArcDist(s1, s2) {
 	var p1 = getPoint(s1)
-  var min = Infinity
+	var min = Infinity
 	var gamma1 = [s1.beta + PI / 2, s1.beta - PI / 2, s1.beta + 2 * A + PI / 2, s1.beta + 2 * A - PI / 2]
 	for (let i of gamma1) {
 		if (s2.beta < i && i < s2.beta + 2 * A) {
@@ -218,9 +233,14 @@ function pointArcDist(p, s) {
 	return Infinity
 }
 
-// calculate strong distance of 2 sensors
+/**
+ * calculate strong distance of 2 sensors
+ * @param {Number} vi - index of 1st Sensor
+ * @param {Number} vj - index of 2nd Sensor
+ * @returns strong distance of 2 sensors
+ */
 function strongDist(vi, vj) {
-  if(vi === vj) return 0
+	if (vi === vj) return 0
 	else if (vi === 0 || vj === 0 || vi === S + 1 || vj === S + 1) return weakDist(vi, vj)
 	else if (checkSensorOverlap(sensors[vi - 1], sensors[vj - 1])) return 0
 	else {
@@ -254,9 +274,15 @@ function strongDist(vi, vj) {
 	}
 }
 
+/**
+ * calculate minimum number of sensors need to form a barrier between 2 sensors
+ * @param {Number} vi - index of 1st Sensor
+ * @param {Number} vj - index of 2nd Sensor
+ * @returns number of sensors
+ */
 function minNum(vi, vj) {
 	return Math.ceil(strongDist(vi, vj) / largestRange)
 }
 
-export { weakDist, strongDist }
+export { weakDist, strongDist, dist, getCenter }
 export default minNum

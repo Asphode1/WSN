@@ -15,3 +15,16 @@ canvas{
   margin: 0;
   outline: 1px solid red;
 }
+.box{
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 1rem;
+}
+select{
+  width: 6rem;
+  padding: 0.25rem;
+}
+input{
+  padding: 0.25rem 1rem;
+}
