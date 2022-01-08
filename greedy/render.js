@@ -18,16 +18,16 @@ var N = 100,
 	S = N - M
 total.onchange = () => (N = parseInt(total.value))
 mobile.onchange = () => (M = parseInt(mobile.value))
-function start( N, M) {
-  S = N-M
-  console.log(N,M);
+function start(N, M) {
+	S = N - M
+	console.log(N, M)
 	var dat = getDat(N, M)
 	var sensors = createSensor(dat, S, M)
 	var mobileSensors = createMobileSensors(dat, S, M)
 	var weight = createWeight(sensors, S)
 	var sensorGraph = new WBG(S + 2, weight)
-  renderSensor(ctx, sensors, N)
-  return sensorGraph
+	renderSensor(ctx, sensors, N)
+	return sensorGraph
 }
 
 function drawSensor(ctx, pos, r, beta, isFixed) {
@@ -52,10 +52,6 @@ function renderSensor(ctx, s, n) {
 	}
 }
 var input = document.getElementById('init')
-var list = document.getElementById('method')
-var a = list.value
-list.onchange = () => (a = list.value)
-var err = document.querySelector('.error')
 var output = document.querySelector('.output')
 var reset = document.getElementById('reset')
 reset.addEventListener('click', () => {
@@ -63,19 +59,8 @@ reset.addEventListener('click', () => {
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
 })
 input.addEventListener('click', function () {
-	switch (a) {
-		case '1':
-      var sensorGraph = start(N,M)
-      S = N-M
-			var k = greedy(sensorGraph, S, M)
-			output.innerHTML = 'k = ' + k + ' N = ' + N + ' M = ' + M
-			break
-		case '2':
-			var k = ga(sensorGraph)
-			console.log(k)
-			break
-		default:
-			err.innerHTML = 'no methods found'
-			console.log(a)
-	}
+	var sensorGraph = start(N, M)
+	S = N - M
+	var k = greedy(sensorGraph, S, M)
+	output.innerHTML = 'k = ' + k 
 })
