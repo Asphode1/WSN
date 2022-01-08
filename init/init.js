@@ -4,7 +4,7 @@ const L = 10000 // x-axis
 const H = 1000 // y-axis
 // dafault value for sensors
 const A = PI / 4 // half the sensing angle
-const R = 200 // sensor radius
+const R = 150 // sensor radius
 const largestRange = 0 <= A && A <= PI / 2 ? Math.max(R, 2 * R * Math.sin(A)) : 2 * R
 
 class Sensors {
