@@ -62,5 +62,7 @@ input.addEventListener('click', function () {
 	var sensorGraph = start(N, M)
 	S = N - M
 	var k = greedy(sensorGraph, S, M)
+  console.log(S,M)
+  console.log(sensorGraph);
 	output.innerHTML = 'k = ' + k 
 })

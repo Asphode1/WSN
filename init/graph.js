@@ -12,6 +12,8 @@ export default class WBG {
       edge[i] = new Array(this.vertex).fill(1)
       edge[i][i] = 0
 		}
+    edge[0][this.vertex-1] = 0
+    edge[this.vertex-1][0] = 0
 		this.edge = edge
 	}
 	addEdge(v1, v2) {
