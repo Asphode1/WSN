@@ -1,4 +1,4 @@
-import { PI, L, S, R, sensors, A, Sensors, N, largestRange } from './init.js'
+import { A, L, largestRange, PI, R, Sensors } from './init.js'
 
 class Point {
 	constructor(x, y) {
@@ -69,13 +69,12 @@ function orientation(p, q, r) {
 
 /**
  * Function to check if 2 line segments are intersect in an Oxy plane
- * @param {Object} p1 - point 1 of line 1
- * @param {Object} q1 - point 2 of line 2
- * @param {Object} p2 - point 1 of line 2
- * @param {Object} q2 - point 2 of line 2
+ * @param {Point} p1 - point 1 of line 1
+ * @param {Point} q1 - point 2 of line 1
+ * @param {Point} p2 - point 1 of line 2
+ * @param {Point} q2 - point 2 of line 2
  * @returns Bolean value
  */
-
 function checkIntersect(p1, q1, p2, q2) {
 	let o1 = orientation(p1, q1, p2)
 	let o2 = orientation(p1, q1, q2)
@@ -92,20 +91,28 @@ function checkIntersect(p1, q1, p2, q2) {
 
 function checklineArcIntersect(p1, l1, l2) {
 	// find a,c | ax - y + c = 0
+	var [p, q, r] = getPoint(p1)
 	var a = (l1.y - l2.y) / (l1.x - l2.x)
 	var c = l1.y - a * l1.x
 	var b = -1
 	var t1 = Math.atan(b / a) + Math.acos(-(a * p1.pos.x + b * p1.pos.y + c) / R / Math.sqrt(a * a + b * b))
 	var t2 = Math.atan(b / a) - Math.acos(-(a * p1.pos.x + b * p1.pos.y + c) / R / Math.sqrt(a * a + b * b))
+	if (
+		((p.x + R * Math.cos(t1) > l1.x && p.x + R * Math.cos(t1) > l2.x) ||
+			(p.x + R * Math.cos(t1) < l1.x && p.x + R * Math.cos(t1) < l2.x)) &&
+		((p.x + R * Math.cos(t2) > l1.x && p.x + R * Math.cos(t2) > l2.x) ||
+			(p.x + R * Math.cos(t2) < l1.x && p.x + R * Math.cos(t2) < l2.x))
+	)
+		return false
 	if ((p1.beta <= t1 && t1 <= p1.beta + 2 * A) || (p1.beta <= t2 && t2 <= p1.beta + 2 * A)) return true
 	return false
 }
-
 function checkArcIntersect(p1, p2) {
 	if (dist(p1.pos, p2.pos) - 2 * R > 0) return false
 	else if (dist(p1.pos, p2.pos) - 2 * R <= 0) {
 		var [a1, a2] = [getPoint(p1)[1], getPoint(p1)[2]]
-		if (checkIntersect(a1, a2, p1.pos, p2.pos)) return true
+		var [b1, b2] = [getPoint(p2)[1], getPoint(p2)[2]]
+		if (checkIntersect(a1, a2, p1.pos, p2.pos) && checkIntersect(b1, b2, p1.pos, p2.pos)) return true
 	}
 	return false
 }
@@ -124,7 +131,7 @@ function checkSensorOverlap(s1, s2) {
 		checkIntersect(s1p1, s1p2, s2p1, s2p2) ||
 		checkIntersect(s1p1, s1p3, s2p1, s2p3) ||
 		checkIntersect(s1p1, s1p2, s2p1, s2p3) ||
-		checkIntersect(s1p1, s1p3, s2p1, s2p1) ||
+		checkIntersect(s1p1, s1p3, s2p1, s2p2) ||
 		checklineArcIntersect(s1, s2p1, s2p2) ||
 		checklineArcIntersect(s2, s1p1, s1p2) ||
 		checklineArcIntersect(s1, s2p1, s2p3) ||
@@ -148,30 +155,32 @@ function calcY(s1) {
 
 /**
  * calculate weak distance of 2 sensors
+ * @param {Array<Sensors>} s - Array of sensors
  * @param {Number} vi - index of 1st Sensor
  * @param {Number} vj - index of 2nd Sensor
+ * @param {Number} S - number of stationary sensors
  * @returns weak distance of 2 sensors
  */
-function weakDist(vi, vj) {
+function weakDist(sensor, vi, vj,S) {
 	if (vi === 0) {
-		var vjx = calcX(sensors[vj - 1])[0]
+		var vjx = calcX(sensor[vj - 1])[0]
 		if (vjx <= 0) return 0
-		else return vjx
+		return vjx
 	} else if (vj === 0) {
-		var vix = calcX(sensors[vi - 1])[0]
+		var vix = calcX(sensor[vi - 1])[0]
 		if (vix <= 0) return 0
-		else return vix
+		return vix
 	} else if (vi === S + 1) {
-		var vjx = calcX(sensors[vj - 1])[1]
+		var vjx = calcX(sensor[vj - 1])[1]
 		if (vjx >= L) return 0
-		else return L - vjx
+		return L - vjx
 	} else if (vj === S + 1) {
-		var vix = calcX(sensors[vi - 1])[1]
+		var vix = calcX(sensor[vi - 1])[1]
 		if (vix >= L) return 0
-		else return L - vix
+		return L - vix
 	} else {
-		var [x11, x12] = calcX(sensors[vi - 1])
-		var [x21, x22] = calcX(sensors[vj - 1])
+		var [x11, x12] = calcX(sensor[vi - 1])
+		var [x21, x22] = calcX(sensor[vj - 1])
 		if (x12 < x21) return x21 - x12
 		if (x11 > x22) return x11 - x22
 		if ((x11 < x21 && x21 < x12) || (x11 < x22 && x22 < x12)) return 0
@@ -235,28 +244,30 @@ function pointArcDist(p, s) {
 
 /**
  * calculate strong distance of 2 sensors
+ * @param {Array<Sensors>} s - Array of sensprs
  * @param {Number} vi - index of 1st Sensor
  * @param {Number} vj - index of 2nd Sensor
+ * @param {Number} S - number of stationary sensor
  * @returns strong distance of 2 sensors
  */
-function strongDist(vi, vj) {
+function strongDist(s, vi, vj,S) {
 	if (vi === vj) return 0
-	else if (vi === 0 || vj === 0 || vi === S + 1 || vj === S + 1) return weakDist(vi, vj)
-	else if (checkSensorOverlap(sensors[vi - 1], sensors[vj - 1])) return 0
+	else if (vi === 0 || vj === 0 || vi === S + 1 || vj === S + 1) return weakDist(s, vi, vj,S)
+	else if (checkSensorOverlap(s[vi - 1], s[vj - 1])) return 0
 	else {
-		var p1 = getPoint(sensors[vi - 1])
-		var p2 = getPoint(sensors[vj - 1])
+		var p1 = getPoint(s[vi - 1])
+		var p2 = getPoint(s[vj - 1])
 		var min = Math.min(
 			minPointDist(p1, p2),
-			arcDist(sensors[vi - 1], sensors[vj - 1]),
-			lineArcDist(sensors[vi - 1], sensors[vj - 1]),
-			lineArcDist(sensors[vj - 1], sensors[vi - 1]),
-			pointArcDist(p1[0], sensors[vj - 1]),
-			pointArcDist(p1[1], sensors[vj - 1]),
-			pointArcDist(p1[2], sensors[vj - 1]),
-			pointArcDist(p2[0], sensors[vi - 1]),
-			pointArcDist(p2[1], sensors[vi - 1]),
-			pointArcDist(p2[2], sensors[vi - 1]),
+			arcDist(s[vi - 1], s[vj - 1]),
+			lineArcDist(s[vi - 1], s[vj - 1]),
+			lineArcDist(s[vj - 1], s[vi - 1]),
+			pointArcDist(p1[0], s[vj - 1]),
+			pointArcDist(p1[1], s[vj - 1]),
+			pointArcDist(p1[2], s[vj - 1]),
+			pointArcDist(p2[0], s[vi - 1]),
+			pointArcDist(p2[1], s[vi - 1]),
+			pointArcDist(p2[2], s[vi - 1]),
 			pointToLine(p1[0], p2[0], p2[1]),
 			pointToLine(p1[0], p2[0], p2[2]),
 			pointToLine(p1[1], p2[0], p2[1]),
@@ -276,13 +287,15 @@ function strongDist(vi, vj) {
 
 /**
  * calculate minimum number of sensors need to form a barrier between 2 sensors
+ * @param {Array<Number>} s - Array of sensors
  * @param {Number} vi - index of 1st Sensor
  * @param {Number} vj - index of 2nd Sensor
+ * @param {Number} S - number of stationary sensor
  * @returns number of sensors
  */
-function minNum(vi, vj) {
-	return Math.ceil(strongDist(vi, vj) / largestRange)
+function minNum(s, vi, vj,S) {
+	return Math.ceil(strongDist(s, vi, vj,S) / largestRange)
 }
 
-export { weakDist, strongDist, dist, getCenter }
+export { weakDist, strongDist, dist, getCenter, getPoint }
 export default minNum

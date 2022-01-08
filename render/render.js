@@ -1,7 +1,9 @@
-import { A, H, L, N, R, Sensors, sensors } from '../src/init.js'
-import greedy from '../algo/greedy.js'
 import ga from '../algo/GA.js'
-import sensorGraph from '../src/createGraph.js'
+import greedy from '../algo/greedy.js'
+import getDat from '../dat/getDat.js'
+import createWeight from '../init/createGraph.js'
+import WBG from '../init/graph.js'
+import { A, createMobileSensors, createSensor, H, L, PI, R, Sensors } from '../init/init.js'
 
 var canvas = document.querySelector('#cv')
 canvas.width = L
@@ -9,6 +11,24 @@ canvas.height = H
 canvas.style.width = '90vw'
 canvas.style.height = (90 / L) * H + 'vw'
 var ctx = canvas.getContext('2d')
+var total = document.getElementById('total')
+var mobile = document.getElementById('mobile')
+var N = 100,
+	M = 10,
+	S = N - M
+total.onchange = () => (N = parseInt(total.value))
+mobile.onchange = () => (M = parseInt(mobile.value))
+function start( N, M) {
+  S = N-M
+  console.log(N,M);
+	var dat = getDat(N, M)
+	var sensors = createSensor(dat, S, M)
+	var mobileSensors = createMobileSensors(dat, S, M)
+	var weight = createWeight(sensors, S)
+	var sensorGraph = new WBG(S + 2, weight)
+  renderSensor(ctx, sensors, N)
+  return sensorGraph
+}
 
 function drawSensor(ctx, pos, r, beta, isFixed) {
 	if (isFixed) {
@@ -16,7 +36,7 @@ function drawSensor(ctx, pos, r, beta, isFixed) {
 	} else ctx.fillStyle = '#fe445050'
 	ctx.beginPath()
 	ctx.moveTo(pos.x, pos.y)
-	ctx.arc(pos.x, pos.y, r, beta + 2 * A, beta, true)
+	ctx.arc(pos.x, pos.y, r, 2 * PI - beta - 2 * A, 2 * PI - beta, false)
 	ctx.fill()
 }
 
@@ -25,25 +45,30 @@ function drawSensor(ctx, pos, r, beta, isFixed) {
  * @param {CanvasRenderingContext2D} ctx - canvas renderer
  * @param {Array<Sensors>} s - list of sensors, default value = sensors
  */
-function renderSensor(ctx, s = sensors) {
+function renderSensor(ctx, s, n) {
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
-	for (let i = 0; i < N; i++) {
+	for (let i = 0; i < n; i++) {
 		drawSensor(ctx, s[i].pos, R, s[i].beta, !s[i].isMobile)
 	}
 }
-renderSensor(ctx)
-
 var input = document.getElementById('init')
 var list = document.getElementById('method')
 var a = list.value
 list.onchange = () => (a = list.value)
 var err = document.querySelector('.error')
 var output = document.querySelector('.output')
+var reset = document.getElementById('reset')
+reset.addEventListener('click', () => {
+	sensorGraph.resetGraph()
+	ctx.clearRect(0, 0, canvas.width, canvas.height)
+})
 input.addEventListener('click', function () {
 	switch (a) {
 		case '1':
-			var k = greedy(sensorGraph)
-			output.innerHTML = 'k = ' + k
+      var sensorGraph = start(N,M)
+      S = N-M
+			var k = greedy(sensorGraph, S, M)
+			output.innerHTML = 'k = ' + k + ' N = ' + N + ' M = ' + M
 			break
 		case '2':
 			var k = ga(sensorGraph)

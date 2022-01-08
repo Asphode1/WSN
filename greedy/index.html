@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WSN</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="box">
+    <label for="method">Select method: </label>
+    <select name="method" id="method">
+      <option value="1" selected>Greedy</option>
+      <option value="2">GA</option>
+    </select>
+    <label for="total">Select number of sensors: </label>
+    <select name="total" id="total">
+      <option value="100" selected>100</option>
+      <option value="200">200</option>
+      <option value="500">500</option>
+      <option value="1000">1000</option>
+    </select>
+    <label for="mobile">Select number of mobile sensors: </label>
+    <select name="mobile" id="mobile">
+      <option value="10" selected>10</option>
+      <option value="20">20</option>
+      <option value="30">30</option>
+      <option value="40">40</option>
+      <option value="50">50</option>
+    </select>
+    <input type="button" value="Start" id="init">
+    <input type="button" value="Reset" id="reset">
+    <p class="error"></p>
+    <p class="output"></p>
+  </div>
+  <canvas id="cv"></canvas>
+  <script type="module" src="../render/render.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-import { dist,Point,strongDist } from "../src/distances.js"
+import { dist,getCenter,getPoint,Point,strongDist } from "../src/distances.js"
 import { Sensors,sensors,largestRange } from "../src/init.js"
 import WBG from '../src/graph.js'
 /**
@@ -26,7 +26,13 @@ function findNearest(sensor,pos){
  * @return array of positions
  */
 function getPos(s1,s2,num){
-  
+  var p1 = getCenter(getPoint(s1))
+  var p2 = getCenter(getPoint(s2))
+  var d = dist(p1,p2)
+  var l = d/num
+  if(l<=largestRange){
+    
+  }
 }
 /**
  * move mobile sensors to make barrier

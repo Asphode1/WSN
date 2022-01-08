@@ -88,8 +88,8 @@ export default class WBG {
 		let queue = []
 		visited[s] = true
 		queue.push(s)
-		while (!queue.length) {
-			n = queue.shift()
+		while (queue.length > 0) {
+			var n = queue.shift()
 			if (n === t) {
 				return true
 			}
@@ -193,6 +193,6 @@ export default class WBG {
         tmp = prev[tmp]
       }
     }
-    return path
+    return [path,dist[t]] 
 	}
 }

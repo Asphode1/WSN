@@ -1,0 +1,39 @@
+*, *::after,*::before{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+h1{
+  font-size: 4rem;
+}
+h2{
+  font-size: 2rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+.alg{
+  display: flex;
+  margin-top: 1rem;
+  justify-content: space-around;
+  align-items: center;
+  flex-direction: row;
+}
+.alg div{
+  width: 20rem;
+  height: 10rem;
+  border: 1px solid black;
+  text-align: center;
+  padding: 2rem;
+}
+a{
+  margin-bottom: 1rem;
+}
+.alg p{
+  margin-top: 1rem ;
+}
