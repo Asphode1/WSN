@@ -1,4 +1,3 @@
-import ga from '../algo/GA.js'
 import greedy from '../algo/greedy.js'
 import getDat from '../dat/getDat.js'
 import createWeight from '../init/createGraph.js'
@@ -18,10 +17,13 @@ var N = 100,
 	S = N - M
 total.onchange = () => (N = parseInt(total.value))
 mobile.onchange = () => (M = parseInt(mobile.value))
-function start(N, M) {
+var pack = document.getElementById('pack')
+var datPack = 10
+pack.onchange = () => (datPack = parseInt(pack.value))
+function start(N, M, dp) {
 	S = N - M
-	console.log(N, M)
-	var dat = getDat(N, M)
+	console.log(N, M, dp)
+	var dat = getDat(N, dp)
 	var sensors = createSensor(dat, S, M)
 	var mobileSensors = createMobileSensors(dat, S, M)
 	var weight = createWeight(sensors, S)
@@ -54,15 +56,19 @@ function renderSensor(ctx, s, n) {
 var input = document.getElementById('init')
 var output = document.querySelector('.output')
 var reset = document.getElementById('reset')
+var time = document.querySelector('.time')
 reset.addEventListener('click', () => {
 	sensorGraph.resetGraph()
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
 })
 input.addEventListener('click', function () {
-	var sensorGraph = start(N, M)
+  var startTime = performance.now()
+	var sensorGraph = start(N, M, datPack)
 	S = N - M
 	var k = greedy(sensorGraph, S, M)
-  console.log(S,M)
-  console.log(sensorGraph);
-	output.innerHTML = 'k = ' + k 
+  var endTime = performance.now()
+	console.log(S, M)
+	console.log(sensorGraph)
+	output.innerHTML = 'k = ' + k
+  time.innerHTML = 'time using = ' + (endTime - startTime).toFixed(4) + 'ms'
 })
