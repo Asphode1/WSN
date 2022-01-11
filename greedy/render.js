@@ -58,8 +58,9 @@ var output = document.querySelector('.output')
 var reset = document.getElementById('reset')
 var time = document.querySelector('.time')
 reset.addEventListener('click', () => {
-	sensorGraph.resetGraph()
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
+  time.innerHTML = ''
+  output.innerHTML = ''
 })
 input.addEventListener('click', function () {
   var startTime = performance.now()
@@ -70,5 +71,5 @@ input.addEventListener('click', function () {
 	console.log(S, M)
 	console.log(sensorGraph)
 	output.innerHTML = 'k = ' + k
-  time.innerHTML = 'time using = ' + (endTime - startTime).toFixed(4) + 'ms'
+  time.innerHTML += 'Time using = ' + (endTime - startTime).toFixed(2) + 'ms' + '<br/>'
 })

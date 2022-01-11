@@ -9,11 +9,11 @@ export default class WBG {
 		this.weight = weight
 		var edge = new Array(this.vertex)
 		for (let i = 0; i < this.vertex; i++) {
-      edge[i] = new Array(this.vertex).fill(1)
-      edge[i][i] = 0
+			edge[i] = new Array(this.vertex).fill(1)
+			edge[i][i] = 0
 		}
-    edge[0][this.vertex-1] = 0
-    edge[this.vertex-1][0] = 0
+		edge[0][this.vertex - 1] = 0
+		edge[this.vertex - 1][0] = 0
 		this.edge = edge
 	}
 	addEdge(v1, v2) {
@@ -24,26 +24,26 @@ export default class WBG {
 		this.edge[v1][v2] = 0
 		this.edge[v2][v1] = 0
 	}
-  /**
-   * remove all edges incident to the vertices in a path
-   * @param {Array<Number>} p : the path that needs removing 
-   */
+	/**
+	 * remove all edges incident to the vertices in a path
+	 * @param {Array<Number>} p : the path that needs removing
+	 */
 	removePath(p) {
-    for(let i=0;i<p.length;i++){
-      for(let j=0;j<this.vertex;j++) this.edge[p[i]][j] = 0
-    }
+		for (let i = 0; i < p.length; i++) {
+			for (let j = 0; j < this.vertex; j++) this.edge[p[i]][j] = 0
+		}
 	}
-  /**
-   * reset graph to the beginning
-   */
-  resetGraph(){
-    var edge = new Array(this.vertex)
+	/**
+	 * reset graph to the beginning
+	 */
+	resetGraph() {
+		var edge = new Array(this.vertex)
 		for (let i = 0; i < this.vertex; i++) {
-      edge[i] = new Array(this.vertex).fill(1)
-      edge[i][i] = 0
+			edge[i] = new Array(this.vertex).fill(1)
+			edge[i][i] = 0
 		}
 		this.edge = edge
-  }
+	}
 	recurDFS(v, visited = [], path = []) {
 		visited[v] = true
 		path.push(v)
@@ -79,12 +79,12 @@ export default class WBG {
 		}
 		return path
 	}
-  /**
-   * Check if there is a path from s to t
-   * @param {Number} s - sources Node
-   * @param {Number} t - target Node
-   * @returns bolean
-   */
+	/**
+	 * Check if there is a path from s to t
+	 * @param {Number} s - sources Node
+	 * @param {Number} t - target Node
+	 * @returns bolean
+	 */
 	checkPath(s, t) {
 		var visited = Array(this.vertex).fill(false)
 		let queue = []
@@ -152,12 +152,12 @@ export default class WBG {
 		}
 		return count
 	}
-  /**
-   * Dijkstra Algorithm to find the shortest path from a node to another node
-   * @param {Number} s - source Node
-   * @param {Number} t - target Node
-   * @returns shortest Path from source Node to target node
-   */
+	/**
+	 * Dijkstra Algorithm to find the shortest path from a node to another node
+	 * @param {Number} s - source Node
+	 * @param {Number} t - target Node
+	 * @returns shortest Path from source Node to target node
+	 */
 	dijkstra(s, t) {
 		var dist = Array(this.vertex).fill(Infinity)
 		dist[s] = 0
@@ -176,7 +176,7 @@ export default class WBG {
 			}
 			var u = ind
 			set = set.filter((i) => i !== u)
-      if(u === t) break
+			if (u === t) break
 			for (var i = 0; i < this.vertex; i++) {
 				if (this.edge[u][i] !== 0 && set.includes(i)) {
 					var alt = dist[u] + this.weight[u][i]
@@ -187,14 +187,14 @@ export default class WBG {
 				}
 			}
 		}
-    var path = []
-    var tmp = t
-    if(prev[tmp] !== undefined || u === s){
-      while(tmp !==undefined){
-        path.unshift(tmp)
-        tmp = prev[tmp]
-      }
-    }
-    return [path,dist[t]] 
+		var path = []
+		var tmp = t
+		if (prev[tmp] !== undefined || u === s) {
+			while (tmp !== undefined) {
+				path.unshift(tmp)
+				tmp = prev[tmp]
+			}
+		}
+		return [path, dist[t]]
 	}
 }
