@@ -11,7 +11,7 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}\\render\\render.js"
+      "program": "${workspaceFolder}\\GA\\population.js"
     }
   ]
 }

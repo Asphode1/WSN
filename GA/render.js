@@ -1,9 +1,10 @@
-import greedy from '../algorithm/greedy.js'
-import getDat from '../dat/getDat.js'
-import createWeight from '../init/createGraph.js'
-import WBG from '../init/graph.js'
-import { A, createMobileSensors, createSensor, H, L, PI, R, Sensors } from '../init/init.js'
-import dat from '../dat/instance100.js'
+import ga, { getBestChild } from '../algorithm/GA.js'
+import { createSensor } from '../init/init.js'
+
+const MUTAION_RATE = 0.1
+const L = 5000
+const H = 1000
+const N = 100
 
 var canvas = document.querySelector('#cv')
 canvas.width = L
@@ -13,30 +14,18 @@ canvas.style.height = (90 / L) * H + 'vw'
 var ctx = canvas.getContext('2d')
 var total = document.getElementById('total')
 var mobile = document.getElementById('mobile')
-var N = 100,
-	M = 10,
+var M = 10,
 	S = N - M
 total.onchange = () => (N = parseInt(total.value))
 mobile.onchange = () => (M = parseInt(mobile.value))
 var pack = document.getElementById('pack')
 var datPack = 10
 pack.onchange = () => (datPack = parseInt(pack.value))
-function start(N, M, dp) {
-	S = N - M
-	console.log(N, M, dp)
-	var dat = getDat(N, dp)
-	var sensors = createSensor(dat, S, M)
-	var mobileSensors = createMobileSensors(dat, S, M)
-	var weight = createWeight(sensors, S)
-	var sensorGraph = new WBG(S + 2, weight)
-	renderSensor(ctx, sensors, N)
-	return sensorGraph
-}
 
 /**
  * render sensor in ROI
  * @param {CanvasRenderingContext2D} ctx canvas render
- * @param {Object} pos position of sensor 
+ * @param {Object} pos position of sensor
  * @param {Number} r sensor radius
  * @param {Number} beta sensor beta in radiant
  * @param {boolean} isFixed sensor mobile or not
@@ -66,30 +55,20 @@ var input = document.getElementById('init')
 var output = document.querySelector('.output')
 var reset = document.getElementById('reset')
 var time = document.querySelector('.time')
+// reset button
 reset.addEventListener('click', () => {
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
-  time.innerHTML = ''
-  output.innerHTML = ''
+	time.innerHTML = ''
+	output.innerHTML = ''
 })
-/* input.addEventListener('click', function () {
-  var startTime = performance.now()
-	var sensorGraph = start(N, M, datPack)
-	S = N - M
-	var k = greedy(sensorGraph, S, M)
-  var endTime = performance.now()
-	console.log(S, M)
-	console.log(sensorGraph)
+// start button
+input.addEventListener('click', function () {
+	var startTime = performance.now()
+	var sensors = createSensor(dat, 1000, 500)
+	var parents = ga(sensors, N, M, MUTAION_RATE)
+	var child = getBestChild(parents)
+	var k = child.fitness
+	var endTime = performance.now()
 	output.innerHTML = 'k = ' + k
-  time.innerHTML += 'Time using = ' + (endTime - startTime).toFixed(2) + 'ms' + '<br/>'
-}) */
-input.addEventListener('click',function(){
-  var startTime = performance.now()
-  var sensors = createSensor(dat,1000,500)
-  var weight = createWeight(sensors,1000)
-  var sensorGraph = new WBG(1002,weight)
-  renderSensor(ctx,sensors,1500)
-  var k = greedy(sensorGraph,1000,500)
-  var endTime = performance.now()
-  output.innerHTML = 'k = ' + k
-  time.innerHTML += 'Time using = ' + (endTime - startTime).toFixed(2) + 'ms' + '<br/>'
+	time.innerHTML += 'Time using = ' + (endTime - startTime).toFixed(2) + 'ms' + '<br/>'
 })

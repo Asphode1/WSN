@@ -39,12 +39,3 @@ var writeln =
 	'\nexport {S,M}\nexport default dat = [\n' +
 	read(source, i)
 write(dest, writeln)
-/* fs.readFile('./dat/txt/data_100_10.txt','utf-8',(err,dat)=>{
-  if(err) console.log(err)
-  var data = dat.split('\r\n')
-  for(let k=0;k<10;k++){
-    var dat = data[k].split(' ')
-    console.log(dat[2]);
-  };
-})
-*/
