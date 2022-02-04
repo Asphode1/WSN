@@ -1,4 +1,4 @@
-import { A, L, largestRange, PI, R, Sensors } from './init.js'
+import { L, PI, Sensors } from './init.js'
 
 class Point {
 	constructor(x, y) {
@@ -27,7 +27,7 @@ function dist(u, v) {
 function getCenter([p1, p2, p3]) {
 	return new Point((p1.x + p2.x + p3.x) / 3, (p1.x + p2.x + p3.x) / 3)
 }
-function getPoint(p) {
+function getPoint(p, A, R) {
 	var p1 = new Point(p.pos.x, p.pos.y)
 	var pos2 = calcPointCircle(p.pos, p.beta, A, R)
 	var p2 = new Point(pos2[0], pos2[1])
@@ -87,11 +87,11 @@ function checkIntersect(p1, q1, p2, q2) {
 	if (o4 == 0 && onSegment(p2, q1, q2)) return true
 	return false
 }
-// end set
+// end
 
-function checklineArcIntersect(p1, l1, l2) {
+function checklineArcIntersect(p1, l1, l2, A, R) {
 	// find a,c | ax - y + c = 0
-	var [p, q, r] = getPoint(p1)
+	var [p, q, r] = getPoint(p1, A, R)
 	var a = (l1.y - l2.y) / (l1.x - l2.x)
 	var c = l1.y - a * l1.x
 	var b = -1
@@ -107,11 +107,12 @@ function checklineArcIntersect(p1, l1, l2) {
 	if ((p1.beta <= t1 && t1 <= p1.beta + 2 * A) || (p1.beta <= t2 && t2 <= p1.beta + 2 * A)) return true
 	return false
 }
-function checkArcIntersect(p1, p2) {
+
+function checkArcIntersect(p1, p2, A, R) {
 	if (dist(p1.pos, p2.pos) - 2 * R > 0) return false
 	else if (dist(p1.pos, p2.pos) - 2 * R <= 0) {
-		var [a1, a2] = [getPoint(p1)[1], getPoint(p1)[2]]
-		var [b1, b2] = [getPoint(p2)[1], getPoint(p2)[2]]
+		var [a1, a2] = [getPoint(p1, A, R)[1], getPoint(p1, A, R)[2]]
+		var [b1, b2] = [getPoint(p2, A, R)[1], getPoint(p2, A, R)[2]]
 		if (checkIntersect(a1, a2, p1.pos, p2.pos) && checkIntersect(b1, b2, p1.pos, p2.pos)) return true
 	}
 	return false
@@ -122,34 +123,36 @@ function checkArcIntersect(p1, p2) {
  *
  * @param {Sensors} s1 - sensor 1
  * @param {Sensors} s2 - sensor 2
+ * @param {Number} A - sensing angle
+ * @param {Number} R - sensing range
  * @returns Bolean value
  */
-function checkSensorOverlap(s1, s2) {
-	var [s1p1, s1p2, s1p3] = getPoint(s1)
-	var [s2p1, s2p2, s2p3] = getPoint(s2)
+function checkSensorOverlap(s1, s2, A, R) {
+	var [s1p1, s1p2, s1p3] = getPoint(s1, A, R)
+	var [s2p1, s2p2, s2p3] = getPoint(s2, A, R)
 	return (
 		checkIntersect(s1p1, s1p2, s2p1, s2p2) ||
 		checkIntersect(s1p1, s1p3, s2p1, s2p3) ||
 		checkIntersect(s1p1, s1p2, s2p1, s2p3) ||
 		checkIntersect(s1p1, s1p3, s2p1, s2p2) ||
-		checklineArcIntersect(s1, s2p1, s2p2) ||
-		checklineArcIntersect(s2, s1p1, s1p2) ||
-		checklineArcIntersect(s1, s2p1, s2p3) ||
-		checklineArcIntersect(s2, s1p1, s1p3) ||
-		checkArcIntersect(s1, s2)
+		checklineArcIntersect(s1, s2p1, s2p2, A, R) ||
+		checklineArcIntersect(s2, s1p1, s1p2, A, R) ||
+		checklineArcIntersect(s1, s2p1, s2p3, A, R) ||
+		checklineArcIntersect(s2, s1p1, s1p3, A, R) ||
+		checkArcIntersect(s1, s2, A, R)
 	)
 }
 
 // functions to calculate distance of 2 sensor
-
-function calcX(s1) {
-	var [a1, a2, a3] = getPoint(s1)
+// TODO: fix function
+function calcX(s1, A, R) {
+	var [a1, a2, a3] = getPoint(s1, A, R)
 	if (s1.beta > PI / 2 && s1.beta < PI) return [a1.x - R, a1.x]
 	if (s1.beta < 2 * PI && s1.beta > (PI * 3) / 2) return [a1.x, a1.x + R]
 	return [Math.min(a1.x, a2.x, a3.x), Math.max(a1.x, a2.x, a3.x)]
 }
-function calcY(s1) {
-	var [a1, a2, a3] = getPoint(s1)
+function calcY(s1, A, R) {
+	var [a1, a2, a3] = getPoint(s1, A, R)
 	return [Math.min(a1.y, a2.y, a3.y), Math.max(a1.y, a2.y, a3.y)]
 }
 
@@ -159,28 +162,30 @@ function calcY(s1) {
  * @param {Number} vi - index of 1st Sensor
  * @param {Number} vj - index of 2nd Sensor
  * @param {Number} S - number of stationary sensors
+ * @param {Number} A - sensing angle
+ * @param {Number} R - sensing range
  * @returns weak distance of 2 sensors
  */
-function weakDist(sensor, vi, vj, S) {
+function weakDist(sensor, vi, vj, S, A, R) {
 	if (vi === 0) {
-		var vjx = calcX(sensor[vj - 1])[0]
+		var vjx = calcX(sensor[vj - 1], A, R)[0]
 		if (vjx <= 0) return 0
 		return vjx
 	} else if (vj === 0) {
-		var vix = calcX(sensor[vi - 1])[0]
+		var vix = calcX(sensor[vi - 1], A, R)[0]
 		if (vix <= 0) return 0
 		return vix
 	} else if (vi === S + 1) {
-		var vjx = calcX(sensor[vj - 1])[1]
+		var vjx = calcX(sensor[vj - 1], A, R)[1]
 		if (vjx >= L) return 0
 		return L - vjx
 	} else if (vj === S + 1) {
-		var vix = calcX(sensor[vi - 1])[1]
+		var vix = calcX(sensor[vi - 1], A, R)[1]
 		if (vix >= L) return 0
 		return L - vix
 	} else {
-		var [x11, x12] = calcX(sensor[vi - 1])
-		var [x21, x22] = calcX(sensor[vj - 1])
+		var [x11, x12] = calcX(sensor[vi - 1], A, R)
+		var [x21, x22] = calcX(sensor[vj - 1], A, R)
 		if (x12 < x21) return x21 - x12
 		if (x11 > x22) return x11 - x22
 		if ((x11 < x21 && x21 < x12) || (x11 < x22 && x22 < x12)) return 0
@@ -198,16 +203,16 @@ function minPointDist(a1, a2) {
 	return min
 }
 
-function arcDist(s1, s2) {
-	var p1 = getPoint(s1)
-	var p2 = getPoint(s2)
+function arcDist(s1, s2, A, R) {
+	var p1 = getPoint(s1, A, R)
+	var p2 = getPoint(s2, A, R)
 	if (checkIntersect(p1[0], p2[0], p1[1], p1[2]) && checkIntersect(p1[0], p2[0], p2[1], p2[2]))
 		return dist(p1[0], p2[0]) - 2 * R
 	return Infinity
 }
 
-function lineArcDist(s1, s2) {
-	var p1 = getPoint(s1)
+function lineArcDist(s1, s2, A, R) {
+	var p1 = getPoint(s1, A, R)
 	var min = Infinity
 	var gamma1 = [s1.beta + PI / 2, s1.beta - PI / 2, s1.beta + 2 * A + PI / 2, s1.beta + 2 * A - PI / 2]
 	for (let i of gamma1) {
@@ -235,8 +240,8 @@ function getAngle(q, p) {
 	return a
 }
 
-function pointArcDist(p, s) {
-	var ps = getPoint(s)
+function pointArcDist(p, s, A, R) {
+	var ps = getPoint(s, A, R)
 	if (dist(p, ps[0]) <= R) return Infinity
 	if (s.beta < getAngle(p, ps[0]) && getAngle(p, ps[0]) < s.beta + 2 * A) return dist(p, ps[0]) - R
 	return Infinity
@@ -248,26 +253,28 @@ function pointArcDist(p, s) {
  * @param {Number} vi - index of 1st Sensor
  * @param {Number} vj - index of 2nd Sensor
  * @param {Number} n - number of stationary sensor
+ * @param {Number} A - sensing angle
+ * @param {Number} R - sensing range
  * @returns strong distance of 2 sensors
  */
-function strongDist(s, vi, vj, n) {
+function strongDist(s, vi, vj, n, A, R) {
 	if (vi === vj) return 0
-	else if (vi === 0 || vj === 0 || vi === n + 1 || vj === n + 1) return weakDist(s, vi, vj, n)
-	else if (checkSensorOverlap(s[vi - 1], s[vj - 1])) return 0
+	else if (vi === 0 || vj === 0 || vi === n + 1 || vj === n + 1) return weakDist(s, vi, vj, n, A, R)
+	else if ((checkSensorOverlap(s[vi - 1], s[vj - 1], A, R))) return 0
 	else {
-		var p1 = getPoint(s[vi - 1])
-		var p2 = getPoint(s[vj - 1])
+		var p1 = getPoint(s[vi - 1], A, R)
+		var p2 = getPoint(s[vj - 1], A, R)
 		var min = Math.min(
 			minPointDist(p1, p2),
-			arcDist(s[vi - 1], s[vj - 1]),
-			lineArcDist(s[vi - 1], s[vj - 1]),
-			lineArcDist(s[vj - 1], s[vi - 1]),
-			pointArcDist(p1[0], s[vj - 1]),
-			pointArcDist(p1[1], s[vj - 1]),
-			pointArcDist(p1[2], s[vj - 1]),
-			pointArcDist(p2[0], s[vi - 1]),
-			pointArcDist(p2[1], s[vi - 1]),
-			pointArcDist(p2[2], s[vi - 1]),
+			arcDist(s[vi - 1], s[vj - 1], A, R),
+			lineArcDist(s[vi - 1], s[vj - 1], A, R),
+			lineArcDist(s[vj - 1], s[vi - 1], A, R),
+			pointArcDist(p1[0], s[vj - 1], A, R),
+			pointArcDist(p1[1], s[vj - 1], A, R),
+			pointArcDist(p1[2], s[vj - 1], A, R),
+			pointArcDist(p2[0], s[vi - 1], A, R),
+			pointArcDist(p2[1], s[vi - 1], A, R),
+			pointArcDist(p2[2], s[vi - 1], A, R),
 			pointToLine(p1[0], p2[0], p2[1]),
 			pointToLine(p1[0], p2[0], p2[2]),
 			pointToLine(p1[1], p2[0], p2[1]),
@@ -291,10 +298,15 @@ function strongDist(s, vi, vj, n) {
  * @param {Number} vi - index of 1st Sensor
  * @param {Number} vj - index of 2nd Sensor
  * @param {Number} n - number of stationary sensor
+ * @param {Number} A - sensing angle
+ * @param {Number} R - sensing range
  * @returns number of sensors
  */
-function minNum(s, vi, vj, n) {
-	return Math.ceil(strongDist(s, vi, vj, n) / largestRange)
+function minNum(s, vi, vj, n, A, R) {
+	var largestRange
+	if (0 <= A && A <= PI / 2) largestRange = Math.max(R, 2 * R * Math.sin(A))
+	else largestRange = 2 * R
+	return Math.ceil(strongDist(s, vi, vj, n, A, R) / largestRange)
 }
 
 export { weakDist, strongDist, dist, getCenter, getPoint }

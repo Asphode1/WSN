@@ -1,15 +1,20 @@
 import WBG from '../init/graph.js'
-import { L, largestRange } from '../init/init.js'
+import { L, PI } from '../init/init.js'
 
-const LIM = Math.ceil(L / largestRange)
 /**
  * Greedy Algorithm for Max-Num-Barrier Problem
  * @param {WBG} graph - the WBG of the ROI
  * @param {Number} S - number of stationay sensor
  * @param {Number} M - number of mobile sensor
+ * @param {Number} A - sensing angle
+ * @param {Number} R - sensing range
  * @returns {Number} maximum number of barriers possible
  */
-export default function greedy(graph, S, M) {
+export default function greedy(graph, S, M, A, R) {
+	var largestRange
+	if (0 <= A && A <= PI / 2) largestRange = Math.max(R, 2 * R * Math.sin(A))
+	else largestRange = 2 * R
+	const LIM = Math.ceil(L / largestRange)
 	var passed = []
 	var q = 0
 	var totalCost = 0

@@ -8,28 +8,56 @@
 </head>
 <body>
   <div class="box">
-    <label for="total">Select number of sensors: </label>
-    <select name="total" id="total">
-      <option value="100" selected>100</option>
+    <label for="station">Select number of stationary sensors: </label>
+    <select name="station" id="station">
+      <option value="50" selected>50</option>
+      <option value="100">100</option>
+      <option value="150">150</option>
       <option value="200">200</option>
-      <option value="500">500</option>
-      <option value="1000">1000</option>
+      <option value="250">250</option>
+      <option value="300">300</option>
     </select>
     <label for="mobile">Select number of mobile sensors: </label>
     <select name="mobile" id="mobile">
-      <option value="10" selected>10</option>
-      <option value="20">20</option>
-      <option value="30">30</option>
+      <option value="0">0</option>
+      <option value="20" selected>20</option>
       <option value="40">40</option>
-      <option value="50">50</option>
+      <option value="60">60</option>
+      <option value="80">80</option>
+      <option value="100">100</option>
+    </select>
+    <label for="range">Select sensing range</label>
+    <select name="range" id="range">
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="15">15</option>
+      <option value="20">20</option>
+      <option value="25">25</option>
+      <option value="30">30</option>
+    </select>
+    <label for="angle">Select sensing angle</label>
+    <select name="angle" id="angle">
+      <option value="0.8">0.8</option>
+      <option value="1">1</option>
+      <option value="1.2">1.2</option>
+      <option value="1.4">1.4</option>
+      <option value="1.6">1.6</option>
+      <option value="1.8">1.8</option>
+      <option value="2">2</option>
+      <option value="0.7854">&pi;/4</option>
     </select>
     <label for="pack">Select data pack: </label>
     <select name="pack" id="pack">
-      <option value="10" selected>1</option>
-      <option value="20">2</option>
-      <option value="30">3</option>
-      <option value="40">4</option>
-      <option value="50">5</option>
+      <option value="1" selected>1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
     </select>
     <input type="button" value="Start" id="init">
     <input type="button" value="Reset" id="reset">
