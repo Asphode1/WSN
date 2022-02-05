@@ -158,7 +158,7 @@ function calcY(s1, A, R) {
 
 /**
  * calculate weak distance of 2 sensors
- * @param {Array<Sensors>} s - Array of sensors
+ * @param {Array<Sensors>} sensors - Array of sensors
  * @param {Number} vi - index of 1st Sensor
  * @param {Number} vj - index of 2nd Sensor
  * @param {Number} S - number of stationary sensors
@@ -240,41 +240,41 @@ function getAngle(q, p) {
 	return a
 }
 
-function pointArcDist(p, s, A, R) {
-	var ps = getPoint(s, A, R)
+function pointArcDist(p, sensors, A, R) {
+	var ps = getPoint(sensors, A, R)
 	if (dist(p, ps[0]) <= R) return Infinity
-	if (s.beta < getAngle(p, ps[0]) && getAngle(p, ps[0]) < s.beta + 2 * A) return dist(p, ps[0]) - R
+	if (sensors.beta < getAngle(p, ps[0]) && getAngle(p, ps[0]) < sensors.beta + 2 * A) return dist(p, ps[0]) - R
 	return Infinity
 }
 
 /**
  * calculate strong distance of 2 sensors
- * @param {Array<Sensors>} s - Array of sensors
+ * @param {Array<Sensors>} sensors - Array of sensors
  * @param {Number} vi - index of 1st Sensor
  * @param {Number} vj - index of 2nd Sensor
- * @param {Number} n - number of stationary sensor
+ * @param {Number} S - number of stationary sensor
  * @param {Number} A - sensing angle
  * @param {Number} R - sensing range
  * @returns strong distance of 2 sensors
  */
-function strongDist(s, vi, vj, n, A, R) {
+function strongDist(sensors, vi, vj, S, A, R) {
 	if (vi === vj) return 0
-	else if (vi === 0 || vj === 0 || vi === n + 1 || vj === n + 1) return weakDist(s, vi, vj, n, A, R)
-	else if ((checkSensorOverlap(s[vi - 1], s[vj - 1], A, R))) return 0
+	else if (vi === 0 || vj === 0 || vi === S + 1 || vj === S + 1) return weakDist(sensors, vi, vj, S, A, R)
+	else if ((checkSensorOverlap(sensors[vi - 1], sensors[vj - 1], A, R))) return 0
 	else {
-		var p1 = getPoint(s[vi - 1], A, R)
-		var p2 = getPoint(s[vj - 1], A, R)
+		var p1 = getPoint(sensors[vi - 1], A, R)
+		var p2 = getPoint(sensors[vj - 1], A, R)
 		var min = Math.min(
 			minPointDist(p1, p2),
-			arcDist(s[vi - 1], s[vj - 1], A, R),
-			lineArcDist(s[vi - 1], s[vj - 1], A, R),
-			lineArcDist(s[vj - 1], s[vi - 1], A, R),
-			pointArcDist(p1[0], s[vj - 1], A, R),
-			pointArcDist(p1[1], s[vj - 1], A, R),
-			pointArcDist(p1[2], s[vj - 1], A, R),
-			pointArcDist(p2[0], s[vi - 1], A, R),
-			pointArcDist(p2[1], s[vi - 1], A, R),
-			pointArcDist(p2[2], s[vi - 1], A, R),
+			arcDist(sensors[vi - 1], sensors[vj - 1], A, R),
+			lineArcDist(sensors[vi - 1], sensors[vj - 1], A, R),
+			lineArcDist(sensors[vj - 1], sensors[vi - 1], A, R),
+			pointArcDist(p1[0], sensors[vj - 1], A, R),
+			pointArcDist(p1[1], sensors[vj - 1], A, R),
+			pointArcDist(p1[2], sensors[vj - 1], A, R),
+			pointArcDist(p2[0], sensors[vi - 1], A, R),
+			pointArcDist(p2[1], sensors[vi - 1], A, R),
+			pointArcDist(p2[2], sensors[vi - 1], A, R),
 			pointToLine(p1[0], p2[0], p2[1]),
 			pointToLine(p1[0], p2[0], p2[2]),
 			pointToLine(p1[1], p2[0], p2[1]),
@@ -294,19 +294,19 @@ function strongDist(s, vi, vj, n, A, R) {
 
 /**
  * calculate minimum number of sensors need to form a barrier between 2 sensors
- * @param {Array<Sensors>} s - Array of sensors
+ * @param {Array<Sensors>} sensors - Array of sensors
  * @param {Number} vi - index of 1st Sensor
  * @param {Number} vj - index of 2nd Sensor
- * @param {Number} n - number of stationary sensor
+ * @param {Number} S - number of stationary sensor
  * @param {Number} A - sensing angle
  * @param {Number} R - sensing range
  * @returns number of sensors
  */
-function minNum(s, vi, vj, n, A, R) {
+function minNum(sensors, vi, vj, S, A, R) {
 	var largestRange
 	if (0 <= A && A <= PI / 2) largestRange = Math.max(R, 2 * R * Math.sin(A))
 	else largestRange = 2 * R
-	return Math.ceil(strongDist(s, vi, vj, n, A, R) / largestRange)
+	return Math.ceil(strongDist(sensors, vi, vj, S, A, R) / largestRange)
 }
 
 export { weakDist, strongDist, dist, getCenter, getPoint }

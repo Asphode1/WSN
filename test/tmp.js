@@ -1,9 +1,10 @@
-import greedy from '../algorithm/greedy.js'
+import ga, { getBestChild } from '../algorithm/GA.js'
+import { createSensor, PI } from '../init/init.js'
 import getDat from '../dat/getDat.js'
-import createWeight from '../init/createGraph.js'
-import WBG from '../init/graph.js'
-import { createSensor, H, L, PI, Sensors } from '../init/init.js'
+import Population from '../GA/population.js'
 
+const MAX_GENERATION = 1000
+const MUTATION_RATE = 0.1
 const S = 5
 const M = 2
 const P = 1
@@ -13,10 +14,10 @@ function start(N, M, dp, A, R) {
 	console.log(N, M, dp, A, R)
 	var dat = getDat(dp)
 	var sensors = createSensor(dat, S, M, A)
-	var weight = createWeight(sensors, S, A, R)
-	var sensorGraph = new WBG(S + 2, weight)
-	return sensorGraph
+	var parents = ga(sensors, S, M, A, R, MUTATION_RATE, MAX_GENERATION)
+	return parents
 }
-var sensors = start(S + M, M, P, A, R)
-var k = greedy(sensors, S, M, A, R)
+var parents = start(S + M, M, P, A, R)
+var child = getBestChild(parents)
+var k = child.fitness
 console.log(k)

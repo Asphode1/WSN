@@ -1,5 +1,3 @@
-import fitness from "./fitness"
-
 /**
  * Array prototype to randomly shuffle every elements in an array
  * @returns {Array} shuffled array
@@ -82,7 +80,6 @@ export default class Population {
 	 */
 	static mate(p1, p2, rate) {
 		var rnd = randIn(Math.floor(p1.length / 3), Math.ceil((p1.length * 2) / 3))
-		console.log(rnd)
 		var children = new Population(p1.length)
 		var data = []
 		var index = []

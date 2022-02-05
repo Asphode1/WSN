@@ -71,9 +71,10 @@ function drawSensor(ctx, pos, r, beta, alpha, isFixed) {
 /**
  * Render ROI
  * @param {CanvasRenderingContext2D} ctx - canvas renderer
- * @param {Array<Sensors>} s - list of sensors, default value = sensors
+ * @param {Array<Sensors>} s - list of sensors
  * @param {Number} n - number of sensors
  * @param {Number} a - sensing angle
+ * @param {Number} R - sensor radius
  */
 function renderSensor(ctx, s, n, a, R) {
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
