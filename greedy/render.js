@@ -87,10 +87,13 @@ var output = document.querySelector('.output')
 var reset = document.getElementById('reset')
 var time = document.querySelector('.time')
 
+var kAvg = 0
+var timeAvg = 0
+
 reset.addEventListener('click', () => {
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
-	time.innerHTML = ''
-	output.innerHTML = ''
+	time.innerHTML = 'Average time = ' + timeAvg / 10
+	output.innerHTML = 'Average barrier = ' + kAvg / 10
 })
 
 input.addEventListener('click', function () {
@@ -98,6 +101,8 @@ input.addEventListener('click', function () {
 	var sensorGraph = start(S + M, M, p, A, R)
 	var k = greedy(sensorGraph, S, M, A, R)
 	var endTime = performance.now()
+	kAvg += k
+	timeAvg += endTime - startTime
 	output.innerHTML = 'k = ' + k
 	time.innerHTML = 'Time using = ' + (endTime - startTime).toFixed(2) + 'ms' + '<br/>'
 })
