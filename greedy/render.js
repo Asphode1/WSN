@@ -94,6 +94,8 @@ reset.addEventListener('click', () => {
 	ctx.clearRect(0, 0, canvas.width, canvas.height)
 	time.innerHTML = 'Average time = ' + timeAvg / 10
 	output.innerHTML = 'Average barrier = ' + kAvg / 10
+	timeAvg = 0
+	kAvg = 0
 })
 
 input.addEventListener('click', function () {
